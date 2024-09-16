@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini</title>
+  <style>
+    /* Estilos gerais */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.5rem;
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Contenedor principal */
+    .contenedor {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      align-items: center;
+    }
+
+    /* Título */
+    .titulo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 2px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: white;
+    }
+
+    #menuButton {
+      margin-left: 20px;
+      padding: 10px 20px;
+      border: 1px solid #000;
+      border-radius: 5px;
+      background-color: #008CBA;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    /* Imagem original e alternativa */
+    #originalImage {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      margin-top: 1px;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .img2 {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      margin-top: 1px;
+      margin-bottom: 2px;
+      display: none;
+    }
+
+    /* Centraliza o resultado da consulta */
+    #resultadoConsulta {
+      background-color: transparent;
+      padding: 3px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 100%;
+      max-height: 190px;
+      overflow-y: auto;
+      color: rgb(255, 255, 255);
+      text-align: center;
+      width: 80%;
+      margin-top: 1px;
+    }
+
+    /* Scrollbars transparentes */
+    #resultadoConsulta::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #resultadoConsulta::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #resultadoConsulta::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+    }
+
+    /* Consulta */
+    #consulta {
+      width: 400px;
+      height: 25px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      resize: none;
+      margin-bottom: 5px;
+      border-width: 4px;
+      border-color: #008CBA;
+      background-color: #000;
+      color: white;
+    }
+
+    /* Botões */
+    .botones {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    #botonConsulta, #botonVoz {
+      padding: 10px 20px;
+      border: 1px solid #000;
+      border-radius: 20px;
+      background-color: #000;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #botonVoz {
+      background-color: #008CBA;
+    }
+
+    #botonConsulta {
+      background-color: rgb(4, 182, 4);
+    }
+
+    /* Container dos controles no fundo da página */
+    .controle-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    /* Página de histórico */
+    #historico {
+      display: none;
+      padding: 20px;
+      background-color: #000;
+      color: #fff;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    #historicoContent {
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Scrollbars transparentes */
+    #historicoContent::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #historicoContent::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #historicoContent::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+    }
+
+    #clearHistory, #backButton {
+      margin: 10px;
+      padding: 10px 20px;
+      border: 1px solid #000;
+      border-radius: 5px;
+      background-color: #008CBA;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #clearHistory {
+      background-color: red;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+    }
+
+    /* Media queries para dispositivos móveis */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      #menuButton {
+        padding: 8px 16px;
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      #consulta {
+        max-width: 90%;
+      }
+
+      #botonConsulta, #botonVoz {
+        max-width: 90%;
+        font-size: 0.9rem;
+      }
+
+      #historicoContent {
+        max-height: 70vh;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      #menuButton {
+        padding: 6px 12px;
+      }
+
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      #consulta {
+        max-width: 100%;
+      }
+
+      #botonConsulta, #botonVoz {
+        max-width: 100%;
+        font-size: 0.8rem;
+      }
+
+      #historicoContent {
+        max-height: 60vh;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="contenedor">
+    <div class="titulo-container">
+      <h1>Franco</h1>
+      <button id="menuButton">Menu</button>
+    </div>
+
+    <img id="originalImage" src="9116f7fd184238ada99fdff9e2f2e3ac.gif" alt="">
+    <img class="img2" src="falando.gif" alt="Imagem Alternativa">
+    <div id="resultadoConsulta"></div>
+
+    <div class="controle-container">
+      <textarea id="consulta" placeholder="Digite sua pergunta aqui"></textarea>
+      <div class="botones">
+        <button type="button" id="botonConsulta">Enviar</button>
+        <button type="button" id="botonVoz">Usar Comando de Voz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Página de histórico -->
+  <div id="historico">
+    <h2>Histórico</h2>
+    <button id="clearHistory">Limpar Histórico</button>
+    <button id="backButton">Voltar</button>
+    <div id="historicoContent"></div>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/generative-ai": "https://esm.run/@google/generative-ai"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+    const clave = "AIzaSyBNjYTNi7xRihHcfU5EiKOmMkVAgRryWx8";  // copiar sua chave
+
+    const genAI = new GoogleGenerativeAI(clave);
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    // Recupera o histórico do localStorage
+    let historico = JSON.parse(localStorage.getItem('historico')) || [];
+
+    // Função para consultar com texto
+    async function realizarConsulta(consulta) {
+      desativarBotao();
+      const resultadoConsulta = document.querySelector("#resultadoConsulta");
+      try {
+        const result = await model.generateContent(consulta);
+        const response = await result.response;
+        const text = await response.text();
+        resultadoConsulta.innerHTML = text;
+        speak(cleanText(text));  // Assistente lê a resposta, após limpar caracteres indesejados
+        armazenarHistorico(consulta, text); // Armazena a consulta e a resposta no histórico
+      } catch (error) {
+        resultadoConsulta.innerHTML = 'Problemas na consulta';
+      }
+      ativarBotao();
+    }
+
+    function armazenarHistorico(consulta, resposta) {
+      historico.push({ consulta, resposta });
+      localStorage.setItem('historico', JSON.stringify(historico));
+    }
+
+    function mostrarHistorico() {
+      const historicoContent = document.querySelector("#historicoContent");
+      historicoContent.innerHTML = '';
+      historico.forEach(item => {
+        historicoContent.innerHTML += `<div><strong>Pergunta:</strong> ${item.consulta}<br><strong>Resposta:</strong> ${item.resposta}</div><hr>`;
+      });
+      document.querySelector("#historico").style.display = 'block';
+      document.querySelector(".contenedor").style.display = 'none';
+    }
+
+    function limparHistorico() {
+      historico = [];
+      localStorage.removeItem('historico');
+      mostrarHistorico();
+      document.querySelector("#historicoContent").innerHTML = '<div>Histórico limpo.</div>';
+    }
+
+    // Função para parar a fala atual
+    function pararFala() {
+      window.speechSynthesis.cancel();
+    }
+
+    // Função para limpar caracteres indesejados do texto
+    function cleanText(text) {
+      return text.replace(/\*/g, '');  // Remove todos os asteriscos
+    }
+
+    // Ação do botão para consulta com texto
+    document.querySelector("#botonConsulta").addEventListener("click", async () => {
+      pararFala();  // Para a fala atual antes de realizar uma nova consulta
+      const consulta = document.querySelector("#consulta").value;
+      await realizarConsulta(consulta);
+    });
+
+    // Ação do botão para comando de voz
+    document.querySelector("#botonVoz").addEventListener("click", () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Seu navegador não suporta reconhecimento de voz.');
+        return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'pt-BR';  // Ajustar o idioma se necessário
+      recognition.start();
+
+      // Muda a imagem para a alternativa durante o reconhecimento
+      document.querySelector("#originalImage").style.display = 'none';
+      document.querySelector(".img2").style.display = 'block';
+
+      recognition.onresult = async (event) => {
+        pararFala();  // Para a fala atual antes de realizar uma nova consulta
+        const consultaVoz = event.results[0][0].transcript;
+        document.querySelector("#consulta").value = consultaVoz;
+        speak("Você disse: " + consultaVoz);  // Assistente lê a pergunta
+        await realizarConsulta(consultaVoz);  // Fazer a consulta automaticamente após reconhecimento de voz
+
+        // Restaura a imagem original após o reconhecimento
+        document.querySelector("#originalImage").style.display = 'block';
+        document.querySelector(".img2").style.display = 'none';
+      };
+
+      recognition.onerror = (event) => {
+        alert('Erro ao reconhecer a voz: ' + event.error);
+
+        // Restaura a imagem original se houver erro
+        document.querySelector("#originalImage").style.display = 'block';
+        document.querySelector(".img2").style.display = 'none';
+      };
+    });
+
+    // Função para síntese de voz
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';  // Ajustar o idioma se necessário
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function desativarBotao() {
+      const botaoConsulta = document.querySelector("#botonConsulta");
+      botaoConsulta.disabled = true;
+      botaoConsulta.innerText = "Consultando...";
+    }
+
+    function ativarBotao() {
+      const botaoConsulta = document.querySelector("#botonConsulta");
+      botaoConsulta.disabled = false;
+      botaoConsulta.innerText = "Enviar";
+    }
+
+    // Ação do botão Menu
+    document.querySelector("#menuButton").addEventListener("click", () => {
+      mostrarHistorico();
+    });
+
+    // Ação do botão Limpar Histórico
+    document.querySelector("#clearHistory").addEventListener("click", () => {
+      limparHistorico();
+    });
+
+    // Ação do botão Voltar
+    document.querySelector("#backButton").addEventListener("click", () => {
+      document.querySelector("#historico").style.display = 'none';
+      document.querySelector(".contenedor").style.display = 'flex';
+    });
+  </script>
+</body>
+
+</html>
